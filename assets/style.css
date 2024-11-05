@@ -1,0 +1,17 @@
+/* Estilo para los botones de navegación en la barra lateral */
+div.stButton > button {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #0044cc; /* Cambia el color según tu preferencia */
+  border-radius: 5px;
+  background-color: #f0f0f0;
+  color: #0044cc;
+  font-weight: bold;
+}
+
+/* Cambiar el color de fondo y texto al pasar el mouse */
+div.stButton > button:hover {
+  background-color: #0044cc;
+  color: white;
+}

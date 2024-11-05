@@ -1,17 +1,27 @@
-/* Estilo para los botones de navegación en la barra lateral */
-div.stButton > button {
-  width: 100%;
-  padding: 10px;
-  margin: 5px 0;
-  border: 1px solid #0044cc; /* Cambia el color según tu preferencia */
-  border-radius: 5px;
-  background-color: #f0f0f0;
-  color: #0044cc;
-  font-weight: bold;
+/* assets/style.css */
+section[data-testid="stHeader"] {
+  display: none;
 }
 
-/* Cambiar el color de fondo y texto al pasar el mouse */
-div.stButton > button:hover {
-  background-color: #0044cc;
-  color: white;
+[data-testid="stSidebar"] {
+  background-color: #f0f2f6;
+}
+
+@font-face {
+  font-family: "Figtree";
+  src: url("fonts/Figtree-Italic-VariableFont_wght.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Figtree";
+  src: url("fonts/Figtree-VariableFont_wght.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+}
+
+body,
+[data-testid="stAppViewContainer"] {
+  font-family: "Figtree", sans-serif;
 }

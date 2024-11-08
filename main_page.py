@@ -19,7 +19,7 @@ def main():
     with cols:
         col1, col2, col3 = st.columns(3)
         for idx, seccion in enumerate(secciones):
-            with [col1, col2, col3][idx % 3]: # Coloca cada tarjeta en una de las 3 columnas
+            with [col1, col2, col3][idx % 3]:
                 st.markdown(
                     f"""
                     <div class="card">

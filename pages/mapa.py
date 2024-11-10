@@ -79,71 +79,63 @@ city_coordinates = {
 }
 
 
-# Crear un DataFrame con coordenadas
 df_cities = pd.DataFrame([
     {'City': city, 'Latitude': coords[0], 'Longitude': coords[1]}
     for city, coords in city_coordinates.items()
 ])
 
 def display_charts(city_data, col):
-    # Top 10 productos por cantidad vendida
     top_products_quantity = city_data.groupby('Description').agg({
         'SalesQuantity': 'sum',
         'SalesDollars': 'sum'
     }).nlargest(10, 'SalesQuantity').reset_index()
 
-    col.write("### Top 10 Productos por Cantidad Vendida")
+    st.markdown('<h2 class="sub-titulo  ">Top 10 Productos por Cantidad Vendida</h2>', unsafe_allow_html=True)
     fig_top_products_quantity = go.Figure(data=[
         go.Bar(
             x=top_products_quantity['Description'],
             y=top_products_quantity['SalesQuantity'],
-            marker_color='blue'
+            marker_color='#183b61' 
         )
     ])
     fig_top_products_quantity.update_layout(
-        title='Top 10 Productos por Cantidad Vendida',
         xaxis_title='Producto',
         yaxis_title='Cantidad Vendida',
-        width=700,
-        height=400,
+        width=500,
+        height=300,
         transition_duration=500
     )
     col.plotly_chart(fig_top_products_quantity)
 
-    # Top 10 productos por ingresos más altos
     top_products_revenue = city_data.groupby('Description').agg({
         'SalesQuantity': 'sum',
         'SalesDollars': 'sum'
     }).nlargest(10, 'SalesDollars').reset_index()
 
-    col.write("### Top 10 Productos por Ingresos Más Altos")
+    st.markdown('<h2 class="sub-titulo  ">Top 10 Productos por Ingresos Más Altos</h2>', unsafe_allow_html=True)
+
     fig_top_products_revenue = go.Figure(data=[
         go.Bar(
             x=top_products_revenue['Description'],
             y=top_products_revenue['SalesDollars'],
-            marker_color='green'
+            marker_color='#183b61' 
         )
     ])
     fig_top_products_revenue.update_layout(
-        title='Top 10 Productos por Ingresos Más Altos',
         xaxis_title='Producto',
         yaxis_title='Ingresos',
-        width=700,
-        height=400,
+        width=500,
+        height=300,
         transition_duration=500
     )
     col.plotly_chart(fig_top_products_revenue)
 
 
-
 def main():
     aplicar_css()
-    st.title("Mapa de Ventas")
+    st.markdown('<h1 class="titulo-principal">Mapa de Ventas</h1>', unsafe_allow_html=True)
+    col1, col2 = st.columns([3, 2])
 
-    # Crear columnas: el mapa a la izquierda y las gráficas a la derecha
-    col1, col2 = st.columns([1, 2])  # Columna 1 para el mapa y columna 2 para las gráficas
-
-    # Crear el mapa en la columna izquierda
     with col1:
         st.write("Haz clic en una ciudad para ver las estadísticas de ventas y productos más destacados.")
         m = folium.Map(location=[53.0, -1.5], zoom_start=6)
@@ -154,21 +146,18 @@ def main():
                 tooltip=row['City'],
                 icon=folium.Icon(color='blue', icon='info-sign')
             ).add_to(m)
-        map_data = st_folium(m, width=700, height=500)
+        map_data = st_folium(m, width=800, height=800)
 
-    # Mostrar datos generales al inicio en la columna derecha
     with col2:
         if not map_data or 'last_object_clicked' not in map_data or not map_data['last_object_clicked']:
-            st.write("**Mostrando datos generales**")
-            display_charts(data, col2)  # Muestra los datos de todas las ciudades al inicio
+            st.write("**Datos generales**")
+            display_charts(data, col2)
 
-    # Verificar si se seleccionó un marcador
     if map_data and 'last_object_clicked' in map_data and map_data['last_object_clicked']:
         clicked_data = map_data['last_object_clicked']
         clicked_lat = clicked_data['lat']
         clicked_lng = clicked_data['lng']
 
-        # Buscar la ciudad correspondiente
         city_row = df_cities[
             (df_cities['Latitude'] == clicked_lat) & (df_cities['Longitude'] == clicked_lng)
         ]
@@ -177,14 +166,13 @@ def main():
             clicked_city = city_row.iloc[0]['City']
             col2.write(f"**Ciudad seleccionada:** {clicked_city}")
 
-            # Filtrar los datos por ciudad seleccionada
             city_data = data[(data['City_x'] == clicked_city) | (data['City_y'] == clicked_city)]
 
-            # Si hay datos para la ciudad seleccionada, actualizar gráficos
             if not city_data.empty:
                 display_charts(city_data, col2)
             else:
-                col2.write("No hay datos de ventas para la ciudad seleccionada.")
+                col2.write("Lo sentimos, no hay datos disponibles para la ciudad seleccionada.")
+
 
 if __name__ == "__main__":
     main()

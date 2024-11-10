@@ -18,8 +18,37 @@ file_path = 'data/df_ventas_concat.csv'
 data = cargar_datos(file_path)
 
 # Función para mostrar gráficos
-def display_charts(data_filtrada, col):
-    # Gráfico de tendencias de ventas
+def display_charts(data_filtrada):
+    # Crear columnas para la tabla y las gráficas principales
+    col_table, col_graphs = st.columns([1, 2])  # Relación 1:2 para tabla y gráficas
+
+    # Tabla en la izquierda
+    with col_table:
+        st.markdown('<h2 class="sub-titulo">Datos Filtrados</h2>', unsafe_allow_html=True)
+        st.dataframe(data_filtrada[['Store', 'SalesQuantity', 'SalesDollars', 'SalesDate', 'Description']])
+
+    # Gráfica de barras a la derecha
+    with col_graphs:
+        st.markdown('<h2 class="sub-titulo">Top 10 Productos por Ventas</h2>', unsafe_allow_html=True)
+        top_productos = (
+            data_filtrada.groupby('Description')[['SalesDollars']].sum().reset_index()
+            .sort_values('SalesDollars', ascending=False)
+            .head(10)
+        )
+        fig_top_productos = px.bar(
+            top_productos,
+            x='Description',
+            y='SalesDollars',
+            title=None,  # Título manejado por el HTML
+            labels={'SalesDollars': 'Ventas ($)', 'Description': 'Producto'},
+            width=500,
+            height=300,
+        )
+        fig_top_productos.update_traces(marker_color='#183b61')  # Color personalizado
+        st.plotly_chart(fig_top_productos, use_container_width=True)
+
+    # Gráfica de dispersión abajo
+    st.markdown('<h2 class="sub-titulo">Tendencias de Ventas por Fecha</h2>', unsafe_allow_html=True)
     ventas_diarias = (
         data_filtrada.groupby('SalesDate')[['SalesDollars']].sum().reset_index()
     )
@@ -27,30 +56,16 @@ def display_charts(data_filtrada, col):
         ventas_diarias,
         x='SalesDate',
         y='SalesDollars',
-        title="Tendencias de Ventas por Fecha",
+        title=None,  # Título manejado por el HTML
         labels={'SalesDollars': 'Ventas ($)', 'SalesDate': 'Fecha'}
     )
-    col.plotly_chart(fig_ventas)
-
-    # Top productos por ventas
-    top_productos = (
-        data_filtrada.groupby('Description')[['SalesDollars']].sum().reset_index()
-        .sort_values('SalesDollars', ascending=False)
-        .head(10)
-    )
-    fig_top_productos = px.bar(
-        top_productos,
-        x='Description',
-        y='SalesDollars',
-        title="Top 10 Productos por Ventas",
-        labels={'SalesDollars': 'Ventas ($)', 'Description': 'Producto'}
-    )
-    col.plotly_chart(fig_top_productos)
+    fig_ventas.update_traces(line_color='#183b61')  # Color personalizado
+    st.plotly_chart(fig_ventas, use_container_width=True)
 
 # Función principal
 def main():
     aplicar_css()
-    st.title("Análisis de Tiendas")
+    st.markdown('<h1 class="titulo-principal">Análisis de Tiendas</h1>', unsafe_allow_html=True)
 
     if data.empty:
         st.error("No se pudieron cargar los datos. Por favor, verifica la ruta del archivo.")
@@ -70,14 +85,8 @@ def main():
     ]
 
     # Mostrar tabla y gráficos
-    st.write(f"### Datos de la Tienda {tienda}")
-    st.dataframe(data_filtrada[['Store', 'SalesQuantity', 'SalesDollars', 'SalesDate', 'Description']])
-
-    st.write("### Visualización de Datos")
     if not data_filtrada.empty:
-        col1, col2 = st.columns([1, 2])
-        with col2:
-            display_charts(data_filtrada, st)
+        display_charts(data_filtrada)
     else:
         st.write("No hay datos para los filtros seleccionados.")
 
